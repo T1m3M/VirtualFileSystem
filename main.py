@@ -69,11 +69,22 @@ def display_disk_structure():
     return
 
 
+def load_vfs_file():
+    return
+
+
+def save_vfs_file():
+    return
+
+
 def main():
 
     # Determine the type of allocation at first
     # to know the VFS file's structure
     allocation_type()
+
+    # loading data from VFS file
+    load_vfs_file()
 
     while True:
         cmd = input("$ ")
@@ -104,10 +115,13 @@ def main():
             display_disk_structure()
 
         elif cmd[0] == "exit":
-            return
+            break
 
         else:
             print("ERROR: Unknown command!")
+
+    # saving data to VFS file
+    save_vfs_file()
 
 
 if __name__ == '__main__':
