@@ -57,7 +57,8 @@ def display_disk_status():
 
 
 def display_disk_structure():
-    return
+    for pre, _, node in RenderTree(root):
+        print("%s%s" % (pre, node.name))
 
 
 def load_vfs_file():
