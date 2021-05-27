@@ -34,6 +34,15 @@ def allocation_type():
         typeOfAllocation = alloc_type
 
 
+# get the full path from a leaf node
+def get_file_path(leaf_node, file_path=""):
+    if leaf_node.is_root:
+        return "root/" + '/'.join(file_path.split()[::-1])
+    else:
+        file_path += leaf_node.name + " "
+        return get_file_path(leaf_node.parent, file_path)
+
+
 def create_file(path, blocks_num):
     # Check if path already exists
     # No file with same name already created there
@@ -45,11 +54,28 @@ def create_folder(path):
 
 
 def delete_file(path):
-    return
+    if path != "root":
+        filename = path.split('/')[-1]
+    else:
+        print("Error: You cannot delete root directory")
+        return
+
+    # get all matching nodes
+    matches = findall_by_attr(root, filename)
+    # if there is a match
+    if matches:
+        # see if the matching path is the required path
+        for match in matches:
+            if path == get_file_path(match):
+                match.parent = None
+                print("FILE DELETED SUCCESSFULLY")
+
+    else:
+        print("File not found under the path specified!")
 
 
 def delete_folder(path):
-    return
+    delete_file(path)
 
 
 def display_disk_status():
@@ -79,15 +105,6 @@ def load_vfs_file():
                     Node(filename, parent=tmp_parent)
                 # make current node as parent to be used as a parent to the next node
                 tmp_parent = findall_by_attr(root, filename)[0]
-
-
-# get the full path from a leaf node
-def get_file_path(leaf_node, file_path=""):
-    if leaf_node.is_root:
-        return "root/" + '/'.join(file_path.split()[::-1])
-    else:
-        file_path += leaf_node.name + " "
-        return get_file_path(leaf_node.parent, file_path)
 
 
 def save_vfs_file():
