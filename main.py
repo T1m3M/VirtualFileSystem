@@ -1,22 +1,11 @@
+from anytree import Node, RenderTree, findall_by_attr, PreOrderIter
+
 # global to identify the type
 typeOfAllocation = 0
 
 
-class File:
-    deleted = False
-
-    def __init__(self, path, blocks):
-        self.file_path = path
-        self.allocated_blocks = blocks
-
-
-class Directory:
-    files = []
-    sub_directories = []
-    deleted = False
-
-    def __init__(self, path):
-        self.directory_path = path
+# a tree holds all directories/files objects
+root = Node("root")
 
 
 def allocation_type():
@@ -46,6 +35,8 @@ def allocation_type():
 
 
 def create_file(path, blocks_num):
+    # Check if path already exists
+    # No file with same name already created there
     return
 
 
@@ -70,11 +61,47 @@ def display_disk_structure():
 
 
 def load_vfs_file():
-    return
+    global root
+
+    with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
+        while True:
+            line = f.readline().strip()
+
+            if line == "---":
+                break
+
+            path = line.split("/")
+            # iterate on each filename in the path
+            for filename in path:
+                # if node not found then create it
+                if not findall_by_attr(root, filename):
+                    Node(filename, parent=tmp_parent)
+                # make current node as parent to be used as a parent to the next node
+                tmp_parent = findall_by_attr(root, filename)[0]
+
+
+# get the full path from a leaf node
+def get_file_path(leaf_node, file_path=""):
+    if leaf_node.is_root:
+        return "root/" + '/'.join(file_path.split()[::-1])
+    else:
+        file_path += leaf_node.name + " "
+        return get_file_path(leaf_node.parent, file_path)
 
 
 def save_vfs_file():
-    return
+
+    with open("DiskStructure.vfs", "w", encoding='utf-8') as f:
+        # iterate on all nodes
+        for node in PreOrderIter(root):
+            # if it's a leaf node get the full path and save it
+            if node.is_leaf:
+                path = get_file_path(node)
+                f.write(path)
+                f.write('\n')
+
+        # separator for end of the tree section
+        f.write('---\n')
 
 
 def main():
