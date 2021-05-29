@@ -55,6 +55,19 @@ def get_file_path(leaf_node, file_path=""):
 
 
 def contiguous_alloc(blocks_num):
+    global DISK_BLOCKS
+    all_blocks = [block for block in DISK_BLOCKS]
+
+    for space in disk_space["0"]:
+        free_space = space[1] - space[0] + 1
+        # if there exists enough contiguous space
+        if free_space >= blocks_num:
+            for i in range(0, blocks_num):
+                all_blocks[space[0] + i] = "1"  # allocating
+
+            DISK_BLOCKS = ''.join(all_blocks)
+            return True
+
     return False
 
 
@@ -231,11 +244,8 @@ def get_block_ranges():
         # if no wall blocking the way then it's the end of disk
         if end == -1:
             end = DISK_SIZE
-        # storing the ranges or block numbers in the corresponding type
-        if start != end - 1:
-            disk_space[curr_block].append([start, end - 1])
-        else:
-            disk_space[curr_block].append(start)
+        # storing the ranges in the corresponding type
+        disk_space[curr_block].append([start, end - 1])
 
         start = end  # moving pointer forward
 
