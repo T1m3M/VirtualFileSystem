@@ -67,11 +67,14 @@ def delete_file(path):
         # see if the matching path is the required path
         for match in matches:
             if path == get_file_path(match):
-                match.parent = None
-                print("FILE DELETED SUCCESSFULLY")
+                if match.fileType == "f":
+                    match.parent = None
+                    print("FILE DELETED SUCCESSFULLY")
+                else:
+                    print("ERROR: this is a directory you should use \"DeleteFolder\" command")
 
     else:
-        print("File not found under the path specified!")
+        print("ERROR: File not found!")
 
 
 def delete_folder(path):
