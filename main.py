@@ -301,6 +301,21 @@ def display_disk_structure():
         print("%s[%s] %s" % (pre, node.fileType, node.name))
 
 
+def find_node(path):
+    node_name = path.split('/')[-1]
+
+    # get all matching nodes
+    matches = findall_by_attr(root, node_name)
+
+    # if there is a match
+    if matches:
+        # see if the matching path is the required path
+        for match in matches:
+            if path == get_file_path(match):
+                return match
+    return 0
+
+
 def load_vfs_file():
     global root, DISK_BLOCKS
     tmp_parent = root
@@ -332,7 +347,23 @@ def load_vfs_file():
         # loading the blocks section
         DISK_BLOCKS = f.readline().strip()
 
-        f.readline().strip()  # to skip the section's separator "---"
+        line = f.readline().strip()  # to skip the section's separator "---"
+        while True:
+            line = f.readline().strip()
+            if line == "###":
+                break
+
+            file_info = line.split()
+            match_node = find_node(file_info[0])
+
+            if typeOfAllocation == 1:
+                alloc_ = [int(x) for x in file_info[1:]]
+            elif typeOfAllocation == 2:
+                alloc_ = []
+            else:
+                alloc_ = []
+
+            match_node.allocBlocks = alloc_
 
 
 def save_vfs_file():
