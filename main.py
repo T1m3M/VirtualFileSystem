@@ -160,6 +160,18 @@ def create_folder(path):
         print("ERROR: %s/ path doesn't exist!" % parent_path)
 
 
+def contiguous_dealloc(file_node):
+    return
+
+
+def indexed_dealloc(file_node):
+    return
+
+
+def linked_dealloc(file_node):
+    return
+
+
 def delete_file(path):
     if path != "root":
         filename = path.split('/')[-1]
@@ -177,6 +189,17 @@ def delete_file(path):
         for match in matches:
             if path == get_file_path(match):
                 if match.fileType == "f":
+
+                    # ----------[ Contiguous De-allocation ]----------
+                    if typeOfAllocation == 1:
+                        contiguous_dealloc(match)
+                    # -----------[ Indexed De-allocation ]------------
+                    elif typeOfAllocation == 2:
+                        indexed_dealloc(match)
+                    # ------------[ Linked De-allocation ]------------
+                    else:
+                        linked_dealloc(match)
+
                     match.parent = None
                     print("FILE DELETED SUCCESSFULLY")
                     return
