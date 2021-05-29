@@ -54,6 +54,18 @@ def get_file_path(leaf_node, file_path=""):
         return get_file_path(leaf_node.parent, file_path)
 
 
+def contiguous_alloc(blocks_num):
+    return False
+
+
+def indexed_alloc(blocks_num):
+    return False
+
+
+def linked_alloc(blocks_num):
+    return False
+
+
 def create_file(path, blocks_num):
     file_name = path.split('/')[-1]
     parent_name = path.split('/')[-2]
@@ -75,8 +87,23 @@ def create_file(path, blocks_num):
                     print("Error: File with the same name already exists")
                 else:
                     if match.fileType == "d":
-                        Node(file_name, parent=match, fileType="f")
-                        print("FILE CREATED SUCCESSFULLY")
+
+                        # ----------[ Contiguous Allocation ]----------
+                        if typeOfAllocation == 1:
+                            success = contiguous_alloc(blocks_num)
+                        # -----------[ Indexed Allocation ]------------
+                        elif typeOfAllocation == 2:
+                            success = indexed_alloc(blocks_num)
+                        # ------------[ Linked Allocation ]------------
+                        else:
+                            success = linked_alloc(blocks_num)
+
+                        if success:
+                            Node(file_name, parent=match, fileType="f")
+                            print("FILE CREATED SUCCESSFULLY")
+                        else:
+                            print("ERROR: no such space exists to create the file")
+
                         return
                     else:
                         file_parent_found = True
