@@ -66,7 +66,7 @@ def contiguous_alloc(blocks_num):
                 all_blocks[space[0] + i] = "1"  # allocating
 
             DISK_BLOCKS = ''.join(all_blocks)
-            return True
+            return [space[0], blocks_num]  # for saving/loading
 
     return False
 
@@ -103,16 +103,16 @@ def create_file(path, blocks_num):
 
                         # ----------[ Contiguous Allocation ]----------
                         if typeOfAllocation == 1:
-                            success = contiguous_alloc(blocks_num)
+                            allocated = contiguous_alloc(blocks_num)
                         # -----------[ Indexed Allocation ]------------
                         elif typeOfAllocation == 2:
-                            success = indexed_alloc(blocks_num)
+                            allocated = indexed_alloc(blocks_num)
                         # ------------[ Linked Allocation ]------------
                         else:
-                            success = linked_alloc(blocks_num)
+                            allocated = linked_alloc(blocks_num)
 
-                        if success:
-                            Node(file_name, parent=match, fileType="f")
+                        if allocated:
+                            Node(file_name, parent=match, fileType="f", allocBlocks=allocated)
                             print("FILE CREATED SUCCESSFULLY")
                         else:
                             print("ERROR: no such space exists to create the file")
@@ -161,7 +161,16 @@ def create_folder(path):
 
 
 def contiguous_dealloc(file_node):
-    return
+    global DISK_BLOCKS
+
+    start = file_node.allocBlocks[0]
+    length = file_node.allocBlocks[1]
+    all_blocks = [block for block in DISK_BLOCKS]
+    # deallocating the space in disk
+    for i in range(0, length):
+        all_blocks[start + i] = "0"
+
+    DISK_BLOCKS = ''.join(all_blocks)
 
 
 def indexed_dealloc(file_node):
