@@ -72,13 +72,35 @@ def delete_file(path):
                     print("FILE DELETED SUCCESSFULLY")
                 else:
                     print("ERROR: this is a directory you should use \"DeleteFolder\" command")
-
+            else:
+                print("ERROR: File not found!")
     else:
         print("ERROR: File not found!")
 
 
 def delete_folder(path):
-    delete_file(path)
+    if path != "root":
+        dirname = path.split('/')[-1]
+    else:
+        print("Error: You cannot delete root directory")
+        return
+
+    # get all matching nodes
+    matches = findall_by_attr(root, dirname)
+    # if there is a match
+    if matches:
+        # see if the matching path is the required path
+        for match in matches:
+            if path == get_file_path(match):
+                if match.fileType == "d":
+                    match.parent = None
+                    print("DIRECTORY DELETED SUCCESSFULLY")
+                else:
+                    print("ERROR: this is a file you should use \"DeleteFile\" command")
+            else:
+                print("ERROR: Folder not found!")
+    else:
+        print("ERROR: Folder not found!")
 
 
 def display_disk_status():
