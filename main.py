@@ -44,9 +44,39 @@ def get_file_path(leaf_node, file_path=""):
 
 
 def create_file(path, blocks_num):
-    # Check if path already exists
-    # No file with same name already created there
-    return
+    file_name = path.split('/')[-1]
+    parent_name = path.split('/')[-2]
+    parent_path = '/'.join(path.split('/')[:-1])
+
+    file_parent_found = False
+
+    # get all matching nodes
+    matches = findall_by_attr(root, parent_name)
+    # if there is a match
+    if matches:
+        # see if the matching path is the required path
+        for match in matches:
+            if parent_path == get_file_path(match) or parent_name == "root":
+                # check if folder name already exists in the same path
+                siblings = [child.name for child in match.children if child.fileType == "f"]
+
+                if file_name in siblings:
+                    print("Error: File with the same name already exists")
+                else:
+                    if match.fileType == "d":
+                        Node(file_name, parent=match, fileType="f")
+                        print("FILE CREATED SUCCESSFULLY")
+                        return
+                    else:
+                        file_parent_found = True
+            else:
+                print("ERROR: %s/ path doesn't exist!" % parent_path)
+                print(get_file_path(match))
+    else:
+        print("ERROR: %s/ path doesn't exist!" % parent_path)
+
+    if file_parent_found:
+        print("ERROR: %s is a file not a directory" % parent_name)
 
 
 def create_folder(path):
@@ -63,7 +93,7 @@ def create_folder(path):
             if parent_path == get_file_path(match) or parent_name == "root":
                 # check if folder name already exists in the same path
                 siblings = [child.name for child in match.children if child.fileType == "d"]
-                
+
                 if folder_name in siblings:
                     print("Error: File with the same name already exists")
                 else:
@@ -73,10 +103,10 @@ def create_folder(path):
                     else:
                         print("ERROR: %s is a file not a directory" % parent_name)
             else:
-                print("ERROR1: %s/ path doesn't exist!" % parent_path)
+                print("ERROR: %s/ path doesn't exist!" % parent_path)
                 print(get_file_path(match))
     else:
-        print("ERROR2: %s/ path doesn't exist!" % parent_path)
+        print("ERROR: %s/ path doesn't exist!" % parent_path)
 
 
 def delete_file(path):
@@ -85,6 +115,8 @@ def delete_file(path):
     else:
         print("Error: You cannot delete root directory")
         return
+
+    dir_only_found = False
 
     # get all matching nodes
     matches = findall_by_attr(root, filename)
@@ -96,12 +128,16 @@ def delete_file(path):
                 if match.fileType == "f":
                     match.parent = None
                     print("FILE DELETED SUCCESSFULLY")
+                    return
                 else:
-                    print("ERROR: this is a directory you should use \"DeleteFolder\" command")
+                    dir_only_found = True
             else:
                 print("ERROR: File not found!")
     else:
         print("ERROR: File not found!")
+
+    if dir_only_found:
+        print("ERROR: this is a directory you should use \"DeleteFolder\" command")
 
 
 def delete_folder(path):
@@ -110,6 +146,8 @@ def delete_folder(path):
     else:
         print("Error: You cannot delete root directory")
         return
+
+    file_only_found = False
 
     # get all matching nodes
     matches = findall_by_attr(root, dirname)
@@ -121,12 +159,16 @@ def delete_folder(path):
                 if match.fileType == "d":
                     match.parent = None
                     print("DIRECTORY DELETED SUCCESSFULLY")
+                    return
                 else:
-                    print("ERROR: this is a file you should use \"DeleteFile\" command")
+                    file_only_found = True
             else:
                 print("ERROR: Folder not found!")
     else:
         print("ERROR: Folder not found!")
+
+    if file_only_found:
+        print("ERROR: this is a file you should use \"DeleteFile\" command")
 
 
 def display_disk_status():
@@ -198,19 +240,31 @@ def main():
 
         # ex: CreateFile root/file.txt 100
         if cmd[0] == "CreateFile":
-            create_file(cmd[1], int(cmd[2]))
+            if len(cmd) == 3:
+                create_file(cmd[1], int(cmd[2]))
+            else:
+                print("Usage: CreateFile <path> <number-of-blocks>")
 
         # ex: CreateFolder root/folder1
         elif cmd[0] == "CreateFolder":
-            create_folder(cmd[1])
+            if len(cmd) == 2:
+                create_folder(cmd[1])
+            else:
+                print("Usage: CreateFolder <path>")
 
         # ex: DeleteFile root/folder1/file.txt
         elif cmd[0] == "DeleteFile":
-            delete_file(cmd[1])
+            if len(cmd) == 2:
+                delete_file(cmd[1])
+            else:
+                print("Usage: DeleteFile <path>")
 
         # ex: DeleteFolder root/folder1
         elif cmd[0] == "DeleteFolder":
-            delete_folder(cmd[1])
+            if len(cmd) == 2:
+                delete_folder(cmd[1])
+            else:
+                print("Usage: DeleteFolder <path>")
 
         # ex: DisplayDiskStatus
         elif cmd[0] == "DisplayDiskStatus":
