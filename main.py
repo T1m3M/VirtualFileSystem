@@ -5,7 +5,7 @@ typeOfAllocation = 0
 
 
 # a tree holds all directories/files objects
-root = Node("root")
+root = Node("root", fileType="d")
 
 
 def allocation_type():
@@ -84,11 +84,12 @@ def display_disk_status():
 
 def display_disk_structure():
     for pre, _, node in RenderTree(root):
-        print("%s%s" % (pre, node.name))
+        print("%s[%s] %s" % (pre, node.fileType, node.name))
 
 
 def load_vfs_file():
     global root
+    tmp_parent = root
 
     with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
         while True:
@@ -97,14 +98,22 @@ def load_vfs_file():
             if line == "---":
                 break
 
+            # getting the file type letter d or f and trimming
+            file_type = line[0]
+            line = line[2:]
+
             path = line.split("/")
             # iterate on each filename in the path
             for filename in path:
-                # if node not found then create it
+                # if node not found then create it as tmp_child
                 if not findall_by_attr(root, filename):
-                    Node(filename, parent=tmp_parent)
-                # make current node as parent to be used as a parent to the next node
+                    tmp_child = Node(filename, parent=tmp_parent, fileType="d")
+                # save current node as tmp_parent to be used as a parent to the next node (if exists)
                 tmp_parent = findall_by_attr(root, filename)[0]
+
+            # if it's a file change the file attribute to file
+            if file_type == "f":
+                tmp_child.fileType = "f"
 
 
 def save_vfs_file():
@@ -112,9 +121,10 @@ def save_vfs_file():
     with open("DiskStructure.vfs", "w", encoding='utf-8') as f:
         # iterate on all nodes
         for node in PreOrderIter(root):
-            # if it's a leaf node get the full path and save it
+            # if it's a leaf node get type and full path and save them
             if node.is_leaf:
                 path = get_file_path(node)
+                f.write(node.fileType + " ")
                 f.write(path)
                 f.write('\n')
 
