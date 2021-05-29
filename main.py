@@ -50,7 +50,33 @@ def create_file(path, blocks_num):
 
 
 def create_folder(path):
-    return
+    folder_name = path.split('/')[-1]
+    parent_name = path.split('/')[-2]
+    parent_path = '/'.join(path.split('/')[:-1])
+
+    # get all matching nodes
+    matches = findall_by_attr(root, parent_name)
+    # if there is a match
+    if matches:
+        # see if the matching path is the required path
+        for match in matches:
+            if parent_path == get_file_path(match) or parent_name == "root":
+                # check if folder name already exists in the same path
+                siblings = [child.name for child in match.children if child.fileType == "d"]
+                
+                if folder_name in siblings:
+                    print("Error: File with the same name already exists")
+                else:
+                    if match.fileType == "d":
+                        Node(folder_name, parent=match, fileType="d")
+                        print("FOLDER CREATED SUCCESSFULLY")
+                    else:
+                        print("ERROR: %s is a file not a directory" % parent_name)
+            else:
+                print("ERROR1: %s/ path doesn't exist!" % parent_path)
+                print(get_file_path(match))
+    else:
+        print("ERROR2: %s/ path doesn't exist!" % parent_path)
 
 
 def delete_file(path):
