@@ -356,10 +356,13 @@ def load_vfs_file():
             file_info = line.split()
             match_node = find_node(file_info[0])
 
+            # ----------[ Contiguous allocation ]----------
             if typeOfAllocation == 1:
                 alloc_ = [int(x) for x in file_info[1:]]
+            # -----------[ Indexed allocation ]------------
             elif typeOfAllocation == 2:
                 alloc_ = []
+            # ------------[ Linked allocation ]------------
             else:
                 alloc_ = []
 
@@ -385,6 +388,28 @@ def save_vfs_file():
 
         # separator for end of the blocks section
         f.write('---\n')
+
+        # iterate on all nodes
+        for node in PreOrderIter(root):
+            # if it's a leaf node and file get
+            if node.is_leaf and node.fileType == "f":
+                path = get_file_path(node)
+                f.write(path + " ")
+
+                # ----------[ Contiguous allocation ]----------
+                if typeOfAllocation == 1:
+                    f.write(str(node.allocBlocks[0]) + " " + str(node.allocBlocks[1]))
+                # -----------[ Indexed allocation ]------------
+                elif typeOfAllocation == 2:
+                    f.write("reserved")
+                # ------------[ Linked allocation ]------------
+                else:
+                    f.write("reserved")
+
+                f.write('\n')
+
+        # separator for end of the allocation section
+        f.write('###\n')
 
 
 def main():
