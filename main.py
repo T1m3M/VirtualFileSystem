@@ -3,6 +3,17 @@ from anytree import Node, RenderTree, findall_by_attr, PreOrderIter
 # global to identify the type
 typeOfAllocation = 0
 
+# disk size
+DISK_SIZE = 500
+
+# holds disk blocks (0s and 1s)
+DISK_BLOCKS = "11111010101010111111" + "0" * 475 + "11110"
+
+# holds all ranges of allocated and unallocated blocks
+disk_space = {
+    "0": [],
+    "1": [],
+}
 
 # a tree holds all directories/files objects
 root = Node("root", fileType="d")
@@ -171,8 +182,49 @@ def delete_folder(path):
         print("ERROR: this is a file you should use \"DeleteFile\" command")
 
 
+def get_block_ranges():
+    global disk_space
+
+    # resetting
+    disk_space["0"] = []
+    disk_space["1"] = []
+
+    start = 0
+    end = 0
+
+    while end != DISK_SIZE:
+        curr_block = DISK_BLOCKS[start]
+        if curr_block == "0":
+            wall = "1"
+        else:
+            wall = "0"
+
+        # gets the end of blocks chunk
+        end = DISK_BLOCKS.find(wall, start)
+        # if no wall blocking the way then it's the end of disk
+        if end == -1:
+            end = DISK_SIZE
+        # storing the ranges or block numbers in the corresponding type
+        if start != end - 1:
+            disk_space[curr_block].append([start, end - 1])
+        else:
+            disk_space[curr_block].append(start)
+
+        start = end  # moving pointer forward
+
+
 def display_disk_status():
-    return
+    bit = 1
+    for block in DISK_BLOCKS:
+        print(block, end='')
+        if bit % 100 == 0:
+            print('')
+        bit += 1
+
+    print("Empty space: %d KB" % DISK_BLOCKS.count('0'))
+    print("Allocated space: %d KB" % DISK_BLOCKS.count('1'))
+    print("Empty blocks in disk: %s" % disk_space["0"])
+    print("Allocated blocks in disk: %s" % disk_space["1"])
 
 
 def display_disk_structure():
@@ -237,6 +289,8 @@ def main():
     while True:
         cmd = input("$ ")
         cmd = cmd.split()
+
+        get_block_ranges()  # getting the ranges of allocated/unallocated bocks
 
         # ex: CreateFile root/file.txt 100
         if cmd[0] == "CreateFile":
