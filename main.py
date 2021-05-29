@@ -7,7 +7,7 @@ typeOfAllocation = 0
 DISK_SIZE = 500
 
 # holds disk blocks (0s and 1s)
-DISK_BLOCKS = "11111010101010111111" + "0" * 475 + "11110"
+DISK_BLOCKS = "0" * DISK_SIZE
 
 # holds all ranges of allocated and unallocated blocks
 disk_space = {
@@ -233,7 +233,7 @@ def display_disk_structure():
 
 
 def load_vfs_file():
-    global root
+    global root, DISK_BLOCKS
     tmp_parent = root
 
     with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
@@ -260,6 +260,11 @@ def load_vfs_file():
             if file_type == "f":
                 tmp_child.fileType = "f"
 
+        # loading the blocks section
+        DISK_BLOCKS = f.readline().strip()
+
+        f.readline().strip()  # to skip the section's separator "---"
+
 
 def save_vfs_file():
 
@@ -274,6 +279,11 @@ def save_vfs_file():
                 f.write('\n')
 
         # separator for end of the tree section
+        f.write('---\n')
+
+        f.write(DISK_BLOCKS + '\n')
+
+        # separator for end of the blocks section
         f.write('---\n')
 
 
