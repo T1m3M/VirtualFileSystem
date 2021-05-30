@@ -431,7 +431,10 @@ def load_vfs_file():
                 alloc_ = [int(x) for x in file_info[1:]]
             # -----------[ Indexed allocation ]------------
             elif typeOfAllocation == 2:
-                alloc_ = []
+                table_block = int(file_info[1])
+                line = f.readline().strip()
+                indexes = [int(x) for x in line.split()]
+                alloc_ = [table_block, indexes]
             # ------------[ Linked allocation ]------------
             else:
                 alloc_ = []
