@@ -104,6 +104,29 @@ def indexed_alloc(blocks_num):
 
 
 def linked_alloc(blocks_num):
+    global DISK_BLOCKS
+    all_blocks = [block for block in DISK_BLOCKS]
+    space_available = DISK_BLOCKS.count("0")
+    linked_list = []
+    prev_block_index = 0
+
+    # if there exists enough space for blocks
+    if space_available >= blocks_num:
+        for i in range(0, blocks_num):
+            # getting an empty random block in free space
+            empty_block_index = find_empty_block()
+            all_blocks[empty_block_index] = "1"  # allocating
+            DISK_BLOCKS = ''.join(all_blocks)  # updating the actual disk
+
+            if i != 0:
+                linked_list.append([prev_block_index, empty_block_index])
+
+            prev_block_index = empty_block_index
+
+        linked_list.append([prev_block_index, None])
+        DISK_BLOCKS = ''.join(all_blocks)
+        return linked_list  # for saving/loading
+
     return False
 
 
@@ -218,7 +241,19 @@ def indexed_dealloc(file_node):
 
 
 def linked_dealloc(file_node):
-    return
+    global DISK_BLOCKS
+
+    linked_list = file_node.allocBlocks
+    all_blocks = [block for block in DISK_BLOCKS]
+
+    # getting the heads only from the linked list
+    blocks = [single_list[0] for single_list in linked_list]
+
+    # deallocating the indexes in disk
+    for block in blocks:
+        all_blocks[block] = "0"
+
+    DISK_BLOCKS = ''.join(all_blocks)
 
 
 def delete_file(path):
