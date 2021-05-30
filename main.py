@@ -399,47 +399,84 @@ def load_vfs_file():
             match_node.allocBlocks = alloc_
 
 
+def get_lines_and_index():
+    # reading the hole vfs file into a list
+    with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
+        contents = f.readlines()
+
+    # getting indexes of ### separator
+    get_separators_indexes = [i for (y, i) in zip(contents, range(len(contents))) if "###\n" == y]
+
+    if typeOfAllocation == 1:
+        for i in range(get_separators_indexes[0] + 1):
+            contents.pop(0)
+
+        return 0, contents
+    elif typeOfAllocation == 2:
+        for i in range(get_separators_indexes[1] - get_separators_indexes[0]):
+            contents.pop(get_separators_indexes[0] + 1)
+
+        return get_separators_indexes[0] + 1, contents
+    else:
+        for i in range(get_separators_indexes[2] - get_separators_indexes[1]):
+            contents.pop(get_separators_indexes[1] + 1)
+
+        return get_separators_indexes[1] + 1, contents
+
+
 def save_vfs_file():
 
+    # getting the array trimmed from the needed section
+    # to record the new updated without affecting other algorithms
+    # and starting index in that array
+    start_offset, file_contents = get_lines_and_index()
+    offset = start_offset
+
+    # iterate on all nodes
+    for node in PreOrderIter(root):
+        # if it's a leaf node get type and full path and save them
+        if node.is_leaf:
+            path = get_file_path(node)
+            file_contents.insert(offset, node.fileType + " " + path + '\n')
+            offset += 1
+
+    # separator for end of the tree section
+    file_contents.insert(offset, '---\n')
+    offset += 1
+
+    file_contents.insert(offset, DISK_BLOCKS + '\n')
+    offset += 1
+
+    # separator for end of the blocks section
+    file_contents.insert(offset, '---\n')
+    offset += 1
+
+    # iterate on all nodes
+    for node in PreOrderIter(root):
+        # if it's a leaf node and file get
+        if node.is_leaf and node.fileType == "f":
+            path = get_file_path(node)
+
+            # ----------[ Contiguous allocation ]----------
+            if typeOfAllocation == 1:
+                file_contents.insert(offset, path + " " + str(node.allocBlocks[0]) + " " + str(node.allocBlocks[1]) + '\n')
+            # -----------[ Indexed allocation ]------------
+            elif typeOfAllocation == 2:
+                file_contents.insert(offset, "reserved" + '\n')
+            # ------------[ Linked allocation ]------------
+            else:
+                file_contents.insert(offset, "reserved" + '\n')
+
+            offset += 1
+
+    # separator for end of the allocation section
+    file_contents.insert(offset, '###\n')
+    offset += 1
+
+    # writing the updates to the vfs file
     with open("DiskStructure.vfs", "w", encoding='utf-8') as f:
-        # iterate on all nodes
-        for node in PreOrderIter(root):
-            # if it's a leaf node get type and full path and save them
-            if node.is_leaf:
-                path = get_file_path(node)
-                f.write(node.fileType + " ")
-                f.write(path)
-                f.write('\n')
-
-        # separator for end of the tree section
-        f.write('---\n')
-
-        f.write(DISK_BLOCKS + '\n')
-
-        # separator for end of the blocks section
-        f.write('---\n')
-
-        # iterate on all nodes
-        for node in PreOrderIter(root):
-            # if it's a leaf node and file get
-            if node.is_leaf and node.fileType == "f":
-                path = get_file_path(node)
-                f.write(path + " ")
-
-                # ----------[ Contiguous allocation ]----------
-                if typeOfAllocation == 1:
-                    f.write(str(node.allocBlocks[0]) + " " + str(node.allocBlocks[1]))
-                # -----------[ Indexed allocation ]------------
-                elif typeOfAllocation == 2:
-                    f.write("reserved")
-                # ------------[ Linked allocation ]------------
-                else:
-                    f.write("reserved")
-
-                f.write('\n')
-
-        # separator for end of the allocation section
-        f.write('###\n')
+        file_contents = ''.join(file_contents)
+        f.write(file_contents)
 
 
 def main():
