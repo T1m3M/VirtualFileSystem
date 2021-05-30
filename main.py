@@ -556,7 +556,9 @@ def save_vfs_file():
                 file_contents.insert(offset, ' '.join([str(x) for x in node.allocBlocks[1]]) + '\n')
             # ------------[ Linked allocation ]------------
             else:
-                file_contents.insert(offset, "reserved" + '\n')
+                file_contents.insert(offset, path + " " + str(node.allocBlocks[0][0]) + " " + str(node.allocBlocks[-1][0]) + '\n')
+                offset += 1
+                file_contents.insert(offset, ' '.join(['-'.join(str(y) for y in x) for x in node.allocBlocks]) + '\n')
 
             offset += 1
 
