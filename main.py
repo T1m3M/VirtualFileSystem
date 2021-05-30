@@ -202,7 +202,19 @@ def contiguous_dealloc(file_node):
 
 
 def indexed_dealloc(file_node):
-    return
+    global DISK_BLOCKS
+
+    table_block = file_node.allocBlocks[0]
+    indexes = file_node.allocBlocks[1]
+    all_blocks = [block for block in DISK_BLOCKS]
+
+    # deallocating the indexes in disk
+    for index in indexes:
+        all_blocks[index] = "0"
+
+    # deallocating the block which holds the table
+    all_blocks[table_block] = "0"
+    DISK_BLOCKS = ''.join(all_blocks)
 
 
 def linked_dealloc(file_node):
