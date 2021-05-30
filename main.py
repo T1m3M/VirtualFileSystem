@@ -1,4 +1,5 @@
 from anytree import Node, RenderTree, findall_by_attr, PreOrderIter
+from random import randint
 
 # global to identify the type
 typeOfAllocation = 0
@@ -71,7 +72,34 @@ def contiguous_alloc(blocks_num):
     return False
 
 
+def find_empty_block():
+    rand_block = randint(0, DISK_SIZE - 1)
+    while DISK_BLOCKS[rand_block] == "1":
+        rand_block = randint(0, DISK_SIZE - 1)
+    return rand_block
+
+
 def indexed_alloc(blocks_num):
+    global DISK_BLOCKS
+    all_blocks = [block for block in DISK_BLOCKS]
+    space_available = DISK_BLOCKS.count("0")
+    indexes_table = []
+
+    # if there exists enough space for blocks + index table block
+    if space_available >= blocks_num + 1:
+        for i in range(0, blocks_num):
+            # getting an empty random block in free space
+            empty_block_index = find_empty_block()
+            all_blocks[empty_block_index] = "1"  # allocating
+            DISK_BLOCKS = ''.join(all_blocks)  # updating the actual disk
+            indexes_table.append(empty_block_index)
+
+        table_block_index = find_empty_block()  # allocating block to store table
+        all_blocks[table_block_index] = "1"
+
+        DISK_BLOCKS = ''.join(all_blocks)
+        return [table_block_index, indexes_table]  # for saving/loading
+
     return False
 
 
