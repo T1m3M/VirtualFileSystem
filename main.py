@@ -472,7 +472,18 @@ def load_vfs_file():
                 alloc_ = [table_block, indexes]
             # ------------[ Linked allocation ]------------
             else:
-                alloc_ = []
+                line = f.readline().strip()
+                linked_list = []
+                links = line.split()
+                # restoring the linked list from the line
+                for link in links:
+                    try:
+                        link_list = [int(x) for x in link.split("-")]
+                    except ValueError:
+                        link_list = [int(link.split("-")[0]), None]
+                    linked_list.append(link_list)
+
+                alloc_ = linked_list
 
             match_node.allocBlocks = alloc_
 
