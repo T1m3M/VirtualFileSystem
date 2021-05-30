@@ -316,11 +316,41 @@ def find_node(path):
     return 0
 
 
+def get_start_offset():
+    template = 0  # flag to indicate which portion for loading
+    offset = 0
+
+    with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
+        line = f.readline()
+        offset += len(line) + 1
+
+        # Seeking to the starting point
+        if typeOfAllocation != 1:
+            while True:
+                if line == "###\n":
+                    if typeOfAllocation == 2:
+                        break
+                    elif typeOfAllocation == 3 and template == 1:
+                        break
+                    template = 1  # remark the first ### found
+
+                line = f.readline()
+                offset += len(line) + 1
+        else:
+            offset = 0
+
+    return offset
+
+
 def load_vfs_file():
     global root, DISK_BLOCKS
     tmp_parent = root
 
     with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
+        # get the start position in file based on allocation type
+        offset = get_start_offset()
+        f.seek(offset)
+
         while True:
             line = f.readline().strip()
 
@@ -347,7 +377,7 @@ def load_vfs_file():
         # loading the blocks section
         DISK_BLOCKS = f.readline().strip()
 
-        line = f.readline().strip()  # to skip the section's separator "---"
+        f.readline().strip()  # to skip the section's separator "---"
         while True:
             line = f.readline().strip()
             if line == "###":
