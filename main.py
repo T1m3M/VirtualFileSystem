@@ -630,7 +630,7 @@ def main():
     load_vfs_file()
 
     while True:
-        cmd = input("%s $ " % current_user)
+        cmd = input("%s:$ " % current_user)
         cmd = cmd.split()
 
         get_block_ranges()  # getting the ranges of allocated/unallocated bocks
@@ -677,6 +677,10 @@ def main():
                 login(cmd[1], cmd[2])
             else:
                 print("Usage: Login <username> <password>")
+
+        # ex: Login test pass
+        elif cmd[0] == "TellUser":
+            print(current_user)
 
         elif cmd[0] == "exit":
             break
