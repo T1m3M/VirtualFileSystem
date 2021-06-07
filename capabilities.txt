@@ -1,11 +1,14 @@
+root;admin,11;test,11;join,11
 root/wow;admin,11;test,10;john,00
 root/nice;admin,11;test,11;john,01
 root/nice/wonderful;admin,11;test,10;john,00
 ###
+root;admin,11;test,11;join,11
 root/wow2;admin,11;test,10;john,00
 root/nice2;admin,11;test,11;john,01
 root/nice2/wonderful2;admin,11;test,10;john,00
 ###
+root;admin,11;test,11;join,11
 root/wow3;admin,11;test,10;john,00
 root/nice3;admin,11;test,11;john,01
 root/nice3/wonderful3;admin,11;test,10;john,00

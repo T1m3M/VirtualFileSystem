@@ -200,7 +200,7 @@ def create_folder(path):
                     print("Error: File with the same name already exists")
                 else:
                     if match.fileType == "d":
-                        Node(folder_name, parent=match, fileType="d")
+                        Node(folder_name, parent=match, fileType="d", caps={})
                         print("FOLDER CREATED SUCCESSFULLY")
                     else:
                         print("ERROR: %s is a file not a directory" % parent_name)
@@ -394,6 +394,9 @@ def display_disk_structure():
 
 
 def find_node(path):
+    if path == "root":
+        return root
+
     node_name = path.split('/')[-1]
 
     # get all matching nodes
@@ -653,7 +656,20 @@ def load_capabilities():
     else:
         lines = lines[separator_indices[1]+1:]
 
-    print(lines)
+    # Parsing capabilities
+    for cap in lines:
+        users_perms = {}
+        folder_path = cap.split(';')[0]
+        folder_node = find_node(folder_path)
+
+        access_list = cap.split(';')[1:]
+        for access_entry in access_list:
+            user_name = access_entry.split(',')[0]
+            access_type = access_entry.split(',')[1]
+            users_perms[user_name] = access_type
+
+        # assigning capabilities to the folder and sub-folders
+        folder_node.caps = users_perms
 
 
 def main():
