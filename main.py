@@ -298,6 +298,17 @@ def delete_file(path):
         print("ERROR: this is a directory you should use \"DeleteFolder\" command")
 
 
+def get_child_files(path, node, files=[]):
+    for child in node.children:
+        child_path = path + '/' + child.name
+        if child.fileType == "f":
+            files.append(child_path)
+        else:
+            get_child_files(child_path, child)
+
+    return files
+
+
 def delete_folder(path):
     if path != "root":
         dirname = path.split('/')[-1]
@@ -315,6 +326,12 @@ def delete_folder(path):
         for match in matches:
             if path == get_file_path(match):
                 if match.fileType == "d":
+                    # deallocate children files
+                    child_files = get_child_files(path, match)
+                    for child_file in child_files:
+                        delete_file(child_file)
+
+                    # detach from tree
                     match.parent = None
                     print("DIRECTORY DELETED SUCCESSFULLY")
                     return
