@@ -618,6 +618,15 @@ def login(username, password):
         print("Username doesn't exist!")
 
 
+def create_user(username, password):
+    global users
+
+    if users.get(username) is None:
+        users[username] = password
+    else:
+        print("Username already exists!")
+
+
 def main():
     # load users from user.txt file
     load_all_users()
@@ -681,6 +690,16 @@ def main():
         # ex: Login test pass
         elif cmd[0] == "TellUser":
             print(current_user)
+
+        # ex: CUser john doe123
+        elif cmd[0] == "CUser":
+            if len(cmd) == 3:
+                if current_user == "admin":
+                    create_user(cmd[1], cmd[2])
+                else:
+                    print("Only admin can create a user account!")
+            else:
+                print("Usage: CUser <username> <password>")
 
         elif cmd[0] == "exit":
             break
