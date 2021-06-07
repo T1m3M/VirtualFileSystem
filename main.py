@@ -607,6 +607,12 @@ def load_all_users():
             users[username] = password
 
 
+def save_all_users():
+    with open("user.txt", "w", encoding='utf-8') as f:
+        for username in users:
+            f.write(username + "," + users[username] + '\n')
+
+
 def login(username, password):
     global current_user
     try:
@@ -709,6 +715,9 @@ def main():
 
     # saving data to VFS file
     save_vfs_file()
+
+    # saving new user accounts
+    save_all_users()
 
 
 if __name__ == '__main__':
