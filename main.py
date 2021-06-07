@@ -170,7 +170,7 @@ def create_file(path, blocks_num):
                                 print("ERROR: no such space exists to create the file")
                             return
                         else:
-                            print("ERROR: you don't have the permission to create files here")
+                            print("ERROR: you don't have the permission to create")
                     else:
                         file_parent_found = True
             else:
@@ -208,7 +208,7 @@ def create_folder(path):
                             Node(folder_name, parent=match, fileType="d", caps=match.caps)
                             print("FOLDER CREATED SUCCESSFULLY")
                         else:
-                            print("ERROR: you don't have the permission to create folders here")
+                            print("ERROR: you don't have the permission to create")
                     else:
                         print("ERROR: %s is a file not a directory" % parent_name)
             else:
@@ -280,20 +280,23 @@ def delete_file(path):
         for match in matches:
             if path == get_file_path(match):
                 if match.fileType == "f":
+                    # check if user have delete access
+                    if match.parent.caps[current_user][1] == "1":
+                        # ----------[ Contiguous De-allocation ]----------
+                        if typeOfAllocation == 1:
+                            contiguous_dealloc(match)
+                        # -----------[ Indexed De-allocation ]------------
+                        elif typeOfAllocation == 2:
+                            indexed_dealloc(match)
+                        # ------------[ Linked De-allocation ]------------
+                        else:
+                            linked_dealloc(match)
 
-                    # ----------[ Contiguous De-allocation ]----------
-                    if typeOfAllocation == 1:
-                        contiguous_dealloc(match)
-                    # -----------[ Indexed De-allocation ]------------
-                    elif typeOfAllocation == 2:
-                        indexed_dealloc(match)
-                    # ------------[ Linked De-allocation ]------------
+                        match.parent = None
+                        print("FILE DELETED SUCCESSFULLY")
+                        return
                     else:
-                        linked_dealloc(match)
-
-                    match.parent = None
-                    print("FILE DELETED SUCCESSFULLY")
-                    return
+                        print("ERROR: you don't have the permission to delete")
                 else:
                     dir_only_found = True
             else:
@@ -333,15 +336,19 @@ def delete_folder(path):
         for match in matches:
             if path == get_file_path(match):
                 if match.fileType == "d":
-                    # deallocate children files
-                    child_files = get_child_files(path, match)
-                    for child_file in child_files:
-                        delete_file(child_file)
+                    # check if user have delete access
+                    if match.parent.caps[current_user][1] == "1":
+                        # deallocate children files
+                        child_files = get_child_files(path, match)
+                        for child_file in child_files:
+                            delete_file(child_file)
 
-                    # detach from tree
-                    match.parent = None
-                    print("DIRECTORY DELETED SUCCESSFULLY")
-                    return
+                        # detach from tree
+                        match.parent = None
+                        print("DIRECTORY DELETED SUCCESSFULLY")
+                        return
+                    else:
+                        print("ERROR: you don't have the permission to delete")
                 else:
                     file_only_found = True
             else:
