@@ -592,8 +592,12 @@ def save_vfs_file():
 # holds all users
 users = {}
 
+# current user
+current_user = "admin"
+
 
 def load_all_users():
+    global users
     with open("user.txt", "r", encoding='utf-8') as f:
         lines = [line.rstrip() for line in f]
 
@@ -601,6 +605,17 @@ def load_all_users():
             username = user_entry.split(',')[0]
             password = user_entry.split(',')[1]
             users[username] = password
+
+
+def login(username, password):
+    global current_user
+    try:
+        if users[username] == password:
+            current_user = username
+        else:
+            print("Incorrect password!")
+    except KeyError:
+        print("Username doesn't exist!")
 
 
 def main():
@@ -615,7 +630,7 @@ def main():
     load_vfs_file()
 
     while True:
-        cmd = input("$ ")
+        cmd = input("%s $ " % current_user)
         cmd = cmd.split()
 
         get_block_ranges()  # getting the ranges of allocated/unallocated bocks
@@ -655,6 +670,13 @@ def main():
         # ex: DisplayDiskStructure
         elif cmd[0] == "DisplayDiskStructure":
             display_disk_structure()
+
+        # ex: Login test pass
+        elif cmd[0] == "Login":
+            if len(cmd) == 3:
+                login(cmd[1], cmd[2])
+            else:
+                print("Usage: Login <username> <password>")
 
         elif cmd[0] == "exit":
             break
