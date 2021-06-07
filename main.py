@@ -589,7 +589,23 @@ def save_vfs_file():
         f.write(file_contents)
 
 
+# holds all users
+users = {}
+
+
+def load_all_users():
+    with open("user.txt", "r", encoding='utf-8') as f:
+        lines = [line.rstrip() for line in f]
+
+        for user_entry in lines:
+            username = user_entry.split(',')[0]
+            password = user_entry.split(',')[1]
+            users[username] = password
+
+
 def main():
+    # load users from user.txt file
+    load_all_users()
 
     # Determine the type of allocation at first
     # to know the VFS file's structure
