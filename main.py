@@ -522,9 +522,9 @@ def load_vfs_file():
             match_node.allocBlocks = alloc_
 
 
-def get_lines_and_index():
+def get_lines_and_index(filename):
     # reading the hole vfs file into a list
-    with open("DiskStructure.vfs", "r", encoding='utf-8') as f:
+    with open(filename, "r", encoding='utf-8') as f:
         contents = f.readlines()
 
     # getting indexes of ### separator
@@ -552,7 +552,7 @@ def save_vfs_file():
     # getting the array trimmed from the needed section
     # to record the new updated without affecting other algorithms
     # and starting index in that array
-    start_offset, file_contents = get_lines_and_index()
+    start_offset, file_contents = get_lines_and_index("DiskStructure.vfs")
     offset = start_offset
 
     # iterate on all nodes
@@ -652,7 +652,6 @@ def create_user(username, password):
 
 
 def load_capabilities():
-
     with open("capabilities.txt", "r", encoding='utf-8') as f:
         lines = [line.rstrip() for line in f]
 
@@ -668,7 +667,7 @@ def load_capabilities():
 
     # ------------[ Linked allocation ]------------
     else:
-        lines = lines[separator_indices[1]+1:]
+        lines = lines[separator_indices[1]+1:-1]
 
     # Parsing capabilities
     for cap in lines:
@@ -684,6 +683,34 @@ def load_capabilities():
 
         # assigning capabilities to the folder and sub-folders
         folder_node.caps = users_perms
+
+
+def get_node_path(node):
+    full_path = [node.name]
+    while node.parent is not None:
+        full_path.append(node.parent.name)
+        node = node.parent
+    return '/'.join(full_path[::-1])
+
+
+def save_capabilities():
+    all_folder_nodes = findall_by_attr(root, name="fileType", value="d")
+    start_offset, file_contents = get_lines_and_index("capabilities.txt")
+    offset = start_offset
+
+    for folder_node in all_folder_nodes:
+        line = ""
+        line += get_node_path(folder_node)
+        for user in folder_node.caps:
+            line += ";"
+            line += user + "," + folder_node.caps[user]
+        file_contents.insert(offset, line + '\n')
+        offset += 1
+
+    file_contents.insert(offset, "###\n")
+    with open("capabilities.txt", "w", encoding='utf-8') as f:
+        file_contents = ''.join(file_contents)
+        f.write(file_contents)
 
 
 def grant_access(username, folder_path, perms):
@@ -800,6 +827,9 @@ def main():
 
     # saving new user accounts
     save_all_users()
+
+    # save capabilities
+    save_capabilities()
 
 
 if __name__ == '__main__':
