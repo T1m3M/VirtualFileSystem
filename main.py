@@ -672,6 +672,22 @@ def load_capabilities():
         folder_node.caps = users_perms
 
 
+def grant_access(username, folder_path, perms):
+    folder_node = find_node(folder_path)
+
+    if folder_node != 0:
+        if folder_node.fileType == "d":
+            if users.get(username) is not None:
+                folder_node.caps[username] = perms
+                print("Access changed successfully to %s for user '%s'" % (perms, username))
+            else:
+                print("User doesn't exist!")
+        else:
+            print("You can grant access to folders only!")
+    else:
+        print("Folder specified doesn't exist!")
+
+
 def main():
     # load users from user.txt file
     load_all_users()
@@ -748,6 +764,16 @@ def main():
                     print("Only admin can create a user account!")
             else:
                 print("Usage: CUser <username> <password>")
+
+        # ex: Grant test root/wow 10 (Create & no delete)
+        elif cmd[0] == "Grant":
+            if len(cmd) == 4:
+                if current_user == "admin":
+                    grant_access(cmd[1], cmd[2], cmd[3])
+                else:
+                    print("Only admin can grant access to a user!")
+            else:
+                print("Usage: Grant <username> <folder-path> <permission>")
 
         elif cmd[0] == "exit":
             break
