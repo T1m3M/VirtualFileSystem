@@ -151,24 +151,26 @@ def create_file(path, blocks_num):
                     print("Error: File with the same name already exists")
                 else:
                     if match.fileType == "d":
+                        # check if user have create access
+                        if match.caps[current_user][0] == "1":
+                            # ----------[ Contiguous Allocation ]----------
+                            if typeOfAllocation == 1:
+                                allocated = contiguous_alloc(blocks_num)
+                            # -----------[ Indexed Allocation ]------------
+                            elif typeOfAllocation == 2:
+                                allocated = indexed_alloc(blocks_num)
+                            # ------------[ Linked Allocation ]------------
+                            else:
+                                allocated = linked_alloc(blocks_num)
 
-                        # ----------[ Contiguous Allocation ]----------
-                        if typeOfAllocation == 1:
-                            allocated = contiguous_alloc(blocks_num)
-                        # -----------[ Indexed Allocation ]------------
-                        elif typeOfAllocation == 2:
-                            allocated = indexed_alloc(blocks_num)
-                        # ------------[ Linked Allocation ]------------
+                            if allocated:
+                                Node(file_name, parent=match, fileType="f", allocBlocks=allocated)
+                                print("FILE CREATED SUCCESSFULLY")
+                            else:
+                                print("ERROR: no such space exists to create the file")
+                            return
                         else:
-                            allocated = linked_alloc(blocks_num)
-
-                        if allocated:
-                            Node(file_name, parent=match, fileType="f", allocBlocks=allocated)
-                            print("FILE CREATED SUCCESSFULLY")
-                        else:
-                            print("ERROR: no such space exists to create the file")
-
-                        return
+                            print("ERROR: you don't have the permission to create files here")
                     else:
                         file_parent_found = True
             else:
@@ -200,8 +202,13 @@ def create_folder(path):
                     print("Error: File with the same name already exists")
                 else:
                     if match.fileType == "d":
-                        Node(folder_name, parent=match, fileType="d", caps={})
-                        print("FOLDER CREATED SUCCESSFULLY")
+                        # check if user have create access
+                        if match.caps[current_user][0] == "1":
+                            # Create folder with same permissions as parent
+                            Node(folder_name, parent=match, fileType="d", caps=match.caps)
+                            print("FOLDER CREATED SUCCESSFULLY")
+                        else:
+                            print("ERROR: you don't have the permission to create folders here")
                     else:
                         print("ERROR: %s is a file not a directory" % parent_name)
             else:
