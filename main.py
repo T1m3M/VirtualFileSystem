@@ -598,13 +598,14 @@ current_user = "admin"
 
 def load_all_users():
     global users
+
     with open("user.txt", "r", encoding='utf-8') as f:
         lines = [line.rstrip() for line in f]
 
-        for user_entry in lines:
-            username = user_entry.split(',')[0]
-            password = user_entry.split(',')[1]
-            users[username] = password
+    for user_entry in lines:
+        username = user_entry.split(',')[0]
+        password = user_entry.split(',')[1]
+        users[username] = password
 
 
 def save_all_users():
@@ -633,6 +634,28 @@ def create_user(username, password):
         print("Username already exists!")
 
 
+def load_capabilities():
+
+    with open("capabilities.txt", "r", encoding='utf-8') as f:
+        lines = [line.rstrip() for line in f]
+
+    separator_indices = [index for index, line in enumerate(lines) if line == "###"]
+
+    # ----------[ Contiguous allocation ]----------
+    if typeOfAllocation == 1:
+        lines = lines[:separator_indices[0]]
+
+    # -----------[ Indexed allocation ]------------
+    elif typeOfAllocation == 2:
+        lines = lines[separator_indices[0]+1:separator_indices[1]]
+
+    # ------------[ Linked allocation ]------------
+    else:
+        lines = lines[separator_indices[1]+1:]
+
+    print(lines)
+
+
 def main():
     # load users from user.txt file
     load_all_users()
@@ -643,6 +666,9 @@ def main():
 
     # loading data from VFS file
     load_vfs_file()
+
+    # load capabilities
+    load_capabilities()
 
     while True:
         cmd = input("%s:$ " % current_user)
